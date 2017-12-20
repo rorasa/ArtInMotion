@@ -16,7 +16,8 @@ lk_params = dict( winSize = (15,15),
 draw_params = dict( size = 5,
                     bgcolor = (0, 0, 0),
                     colorRangeMin = 0,
-                    colorRangeMax = 255)
+                    colorRangeMax = 255,
+                    drawDuration = 50)
 
 # flow colors
 color = np.random.randint( draw_params['colorRangeMin'], draw_params['colorRangeMax'], (feature_params['maxCorners'],3))
@@ -29,9 +30,8 @@ ret, old_frame = vidIn.read()
 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 points_old = cv2.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 
-# drawing canvas with background color
-canvas = np.zeros_like(old_frame)
-canvas[:] = draw_params['bgcolor']
+# drawing points
+points_list = []
 
 while(vidIn.isOpened()):
     ret, frame = vidIn.read()
@@ -44,12 +44,30 @@ while(vidIn.isOpened()):
     good_new = points_new[status==1]
     good_old = points_old[status==1]
 
-    # draw the tracks
+    # draw the empty canvas with background color
+    canvas = np.zeros_like(old_frame)
+    canvas[:] = draw_params['bgcolor']
+
+    # create the flows
+    frame_lines = []
     for i, (new, old) in enumerate(zip(good_new, good_old)):
         a,b = new.ravel()
         c,d = old.ravel()
-        canvas = cv2.line(canvas, (a,b), (c,d), color[i].tolist(), 2)
-        canvas = cv2.circle(canvas, (a,b), draw_params['size'], color[i].tolist(), -1)
+
+        frame_lines.append(((a,b),(c,d)))
+
+    # update points_list
+    points_list.append(frame_lines)
+    if len(points_list)>draw_params['drawDuration']:
+        points_list = points_list[1:]
+
+    # draw the flows
+    for frame_lines in points_list:
+        for i in range(0, len(frame_lines)):
+            line = frame_lines[i]
+            canvas = cv2.line(canvas, line[0], line[1], color[i].tolist(), 2)
+            canvas = cv2.circle(canvas, line[0], draw_params['size'], color[i].tolist(), -1)
+
     img = cv2.add(frame,canvas)
 
     cv2.imshow('frame', img)
