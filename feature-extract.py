@@ -14,6 +14,7 @@ lk_params = dict( winSize = (15,15),
 
 # drawing parameters
 draw_params = dict( size = 5,
+                    bgcolor = (0, 0, 0),
                     colorRangeMin = 0,
                     colorRangeMax = 255)
 
@@ -28,8 +29,9 @@ ret, old_frame = vidIn.read()
 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 points_old = cv2.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 
-# drawing canvas
+# drawing canvas with background color
 canvas = np.zeros_like(old_frame)
+canvas[:] = draw_params['bgcolor']
 
 while(vidIn.isOpened()):
     ret, frame = vidIn.read()
