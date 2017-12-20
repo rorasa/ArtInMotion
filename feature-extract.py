@@ -17,6 +17,7 @@ draw_params = dict( size = 5,
                     bgcolor = (0, 0, 0),
                     colorRangeMin = 0,
                     colorRangeMax = 255,
+                    drawInterval = 1,
                     drawDuration = 50)
 
 # flow colors
@@ -34,7 +35,8 @@ points_old = cv2.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 points_list = []
 
 while(vidIn.isOpened()):
-    ret, frame = vidIn.read()
+    for i in range(0, draw_params['drawInterval']):
+        ret, frame = vidIn.read()
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # calculate PyrLK optical Flow
