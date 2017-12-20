@@ -12,8 +12,13 @@ lk_params = dict( winSize = (15,15),
                   maxLevel = 2,
                   criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10 , 0.03))
 
-# Flow colors
-color = np.random.randint(0, 255, (100,3))
+# drawing parameters
+draw_params = dict( size = 5,
+                    colorRangeMin = 0,
+                    colorRangeMax = 255)
+
+# flow colors
+color = np.random.randint( draw_params['colorRangeMin'], draw_params['colorRangeMax'], (feature_params['maxCorners'],3))
 
 # Read the input video
 vidIn = cv2.VideoCapture('dancers.mp4')
@@ -42,10 +47,11 @@ while(vidIn.isOpened()):
         a,b = new.ravel()
         c,d = old.ravel()
         canvas = cv2.line(canvas, (a,b), (c,d), color[i].tolist(), 2)
-        canvas = cv2.circle(canvas, (a,b), 5, color[i].tolist(), -1)
+        canvas = cv2.circle(canvas, (a,b), draw_params['size'], color[i].tolist(), -1)
     img = cv2.add(frame,canvas)
 
     cv2.imshow('frame', img)
+    cv2.imshow('canvas', canvas)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
